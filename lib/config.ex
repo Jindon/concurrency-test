@@ -21,17 +21,25 @@ defmodule ConcurrencyTest.Config do
     @type t :: %__MODULE__{method: String.t(), url: String.t()}
   end
 
+  defmodule ExpectConfig do
+    @moduledoc false
+    defstruct status_codes: %{}
+
+    @type t :: %__MODULE__{status_codes: %{non_neg_integer() => non_neg_integer()}}
+  end
+
   defmodule Scenario do
     @moduledoc false
     @enforce_keys [:name, :run, :request]
-    defstruct [:name, :run, :request, headers: %{}, body: %{}]
+    defstruct [:name, :run, :request, headers: %{}, body: %{}, expect: nil]
 
     @type t :: %__MODULE__{
             name: String.t(),
             run: RunConfig.t(),
             request: RequestConfig.t(),
             headers: map(),
-            body: map()
+            body: map(),
+            expect: ExpectConfig.t() | nil
           }
   end
 
@@ -63,7 +71,8 @@ defmodule ConcurrencyTest.Config do
          run: run,
          request: request,
          headers: raw["headers"] || %{},
-         body: raw["body"] || %{}
+         body: raw["body"] || %{},
+         expect: parse_expect(raw["expect"])
        }}
     end
   end
@@ -89,6 +98,13 @@ defmodule ConcurrencyTest.Config do
       method not in @valid_methods -> {:error, "Invalid HTTP method: #{method}"}
       true -> {:ok, %RequestConfig{method: method, url: url}}
     end
+  end
+
+  defp parse_expect(nil), do: nil
+
+  defp parse_expect(expect) do
+    codes = (expect["status_codes"] || %{}) |> Map.new(fn {k, v} -> {k, v} end)
+    %ExpectConfig{status_codes: codes}
   end
 
   defp required_pos_integer(map, key) do

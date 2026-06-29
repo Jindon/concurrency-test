@@ -38,6 +38,34 @@ defmodule ConcurrencyTest.ConfigTest do
     assert {:ok, s} = Config.load_from_map(raw)
     assert s.request.method == "POST"
   end
+
+  test "parses expect.status_codes into ExpectConfig" do
+    raw = %{
+      "name" => "x",
+      "run" => %{"requests" => 10, "concurrency" => 1, "timeout" => 1000},
+      "request" => %{"method" => "POST", "url" => "http://example.com"},
+      "expect" => %{"status_codes" => %{201 => 1, 409 => 9}}
+    }
+
+    assert {:ok, s} = Config.load_from_map(raw)
+    assert s.expect.status_codes == %{201 => 1, 409 => 9}
+  end
+
+  test "expect is nil when omitted" do
+    raw = %{
+      "name" => "x",
+      "run" => %{"requests" => 1, "concurrency" => 1, "timeout" => 1000},
+      "request" => %{"method" => "GET", "url" => "http://example.com"}
+    }
+
+    assert {:ok, s} = Config.load_from_map(raw)
+    assert s.expect == nil
+  end
+
+  test "loads expect.status_codes from a YAML fixture" do
+    assert {:ok, s} = Config.load("test/fixtures/with_expect.yml")
+    assert s.expect.status_codes == %{201 => 1, 409 => 9}
+  end
 end
 
 defmodule ConcurrencyTest.TemplateTest do

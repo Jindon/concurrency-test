@@ -19,3 +19,16 @@ body:
   destinationAccount: ACC002
   amount: 1000
   currency: EUR
+
+# Optional: fail if observed status code counts don't match.
+# Omit this section to run without assertions.
+#
+# expect:
+#   status_codes:
+#     200: 10000
+#
+# Idempotency example — exactly one success, rest rejected:
+# expect:
+#   status_codes:
+#     201: 1
+#     409: 9999

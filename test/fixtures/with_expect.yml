@@ -1,0 +1,21 @@
+name: Idempotency Check
+
+run:
+  requests: 10
+  concurrency: 10
+  timeout: 5000
+
+request:
+  method: POST
+  url: http://localhost:8000/payments
+
+headers:
+  Idempotency-Key: fixed-key-abc123
+
+body:
+  amount: 500
+
+expect:
+  status_codes:
+    201: 1
+    409: 9
