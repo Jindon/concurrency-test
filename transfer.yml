@@ -1,0 +1,21 @@
+name: Transfer API
+
+run:
+  requests: 10000
+  concurrency: 500
+  timeout: 5000
+
+request:
+  method: POST
+  url: http://localhost:8000/transfers
+
+headers:
+  Authorization: Bearer token
+  Content-Type: application/json
+  Idempotency-Key: "{{uuid}}"
+
+body:
+  sourceAccount: ACC001
+  destinationAccount: ACC002
+  amount: 1000
+  currency: EUR

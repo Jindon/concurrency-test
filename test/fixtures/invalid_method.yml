@@ -1,0 +1,10 @@
+name: Bad Method
+
+run:
+  requests: 1
+  concurrency: 1
+  timeout: 1000
+
+request:
+  method: BREW
+  url: http://localhost:8000/test
